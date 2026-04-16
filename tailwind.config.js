@@ -43,7 +43,7 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ['Raleway', 'system-ui', 'sans-serif'],
+        primary: ['Raleway', 'system-ui', 'sans-serif'],
       },
     },
   },

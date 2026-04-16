@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-brand-bg text-brand-text antialiased;
+  }
+
+  * {
+    @apply box-border;
+  }
+}
+
+@layer components {
+  /* ── Buttons ── */
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium text-white
+           bg-primary hover:bg-primary-600
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+           transition-colors duration-150
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium
+           text-primary bg-white border border-primary/30
+           hover:bg-primary/5
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+           transition-colors duration-150;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium
+           text-brand-text hover:bg-gray-100
+           focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2
+           transition-colors duration-150;
+  }
+
+  /* ── Inputs ── */
+  .input-field {
+    @apply w-full px-3 py-2.5 sm:py-2 text-sm text-brand-text bg-white
+           border border-gray-200 rounded-lg placeholder-gray-400
+           focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
+           transition-colors duration-150;
+  }
+
+  /* ── Cards ── */
+  .card {
+    @apply bg-white border border-gray-100 rounded-xl shadow-sm;
+  }
+
+  /* ── Badge ── */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  /* ── Page section ── */
+  .page-header {
+    @apply mb-4 sm:mb-6;
+  }
+
+  .page-title {
+    @apply text-lg sm:text-xl font-semibold text-brand-text;
+  }
+
+  .page-subtitle {
+    @apply text-xs sm:text-sm text-gray-500 mt-0.5;
+  }
+
+  /* ── Table (desktop only — hidden on mobile) ── */
+  .data-table {
+    @apply hidden sm:block overflow-x-auto;
+  }
+
+  /* ── Customer card (mobile only — hidden on desktop) ── */
+  .data-cards {
+    @apply block sm:hidden divide-y divide-gray-50;
+  }
+
+  /* ── Stat grid ── */
+  .stat-grid {
+    @apply grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4;
+  }
+
+  /* ── Detail grid (2-col on desktop, 1-col on mobile) ── */
+  .detail-grid {
+    @apply grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6;
+  }
+}
