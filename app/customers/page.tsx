@@ -7,7 +7,6 @@ import type {
   SortField,
   SortOrder
 } from '@/app/interface/customer-app.interface'
-import CreditBadge from '@/components/credit-badge'
 import { getCustomers } from '@/lib/api/customers/get-customers'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -23,11 +22,16 @@ const SORT_OPTIONS: { value: SortField; label: string }[] = [
   { value: 'last_activity',       label: 'Last Activity' },
 ]
 
-function formatCurrency(n: number) {
-  return new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', maximumFractionDigits: 0 }).format(n)
-}
+const colList: { label: string; desktopOnly?: boolean; align?: 'right' }[] = [
+  { label: 'Customer Name' },
+  { label: 'Company Name' },
+  { label: 'Salesperson' },
+  { label: 'Status' },
+  { label: 'Total Spend' },
+  { label: 'Purchases' },
+  { label: 'Last Activity' },
+]
 
-// ---------------------------------------------------------------------------
 export default function CustomersPage() {
   // search form state
   const [form, setForm] = useState<CustomersSearchOptionsParams>({})
@@ -42,6 +46,7 @@ export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([])
   const [total, setTotal]         = useState(0)
   const [page, setPage]           = useState(1)
+  const [pageInput, setPageInput] = useState('1')
   const [loading, setLoading]     = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
 
@@ -65,6 +70,7 @@ export default function CustomersPage() {
       setCustomers(customers)
       setTotal(total)
       setPage(page)
+      setPageInput(String(page))
     } finally {
       setLoading(false)
     }
@@ -98,17 +104,23 @@ export default function CustomersPage() {
     fetchPage({ ...activeSearchParams, page: toPage })
   }
 
-  // -------------------------------------------------------------------------
   return (
     <>
-
-        {/* Page title */}
-        <div className="mb-6">
-          <h1 className="text-xl font-semibold text-brand-text">Customers</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Search and filter your customer list</p>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-xl font-semibold text-brand-text">Customers</h1>
+            <p className="text-sm text-gray-500 mt-0.5">Search and filter your customer list</p>
+          </div>
+          {/* mock add customer button */}
+          <button type="button" className="btn-primary flex items-center gap-2 px-4 py-2 text-sm">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            Add Customer
+          </button>
         </div>
 
-        {/* ── Search & Sort panel ── */}
+        {/* Search & Sort panel */}
         <div className="card px-6 py-5 mb-6">
           {/* Search inputs */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
@@ -144,37 +156,30 @@ export default function CustomersPage() {
             </div>
           </div>
 
-          {/* Sort + Search button row */}
+          {/* Sort selection and Search button */}
           <div className="flex flex-col sm:flex-row sm:items-end gap-3">
-            <div className="sm:w-64">
+            <div>
               <label className="block text-xs font-medium text-brand-text mb-1">Sort by</label>
-              <div className="flex gap-2">
-                <select
-                  className="input-field text-sm py-2 flex-1"
-                  value={sortBy}
-                  onChange={e => setSortBy(e.target.value as SortField)}
-                >
-                  {SORT_OPTIONS.map(o => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </select>
-                <button
-                  type="button"
-                  onClick={() => setSortOrder(o => o === 'asc' ? 'desc' : 'asc')}
-                  className="btn-secondary px-3 py-2 text-xs"
-                  title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
-                >
-                  {sortOrder === 'asc' ? (
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-                    </svg>
-                  ) : (
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
-                    </svg>
-                  )}
-                </button>
-              </div>
+              <select
+                className="input-field text-sm py-2"
+                value={sortBy}
+                onChange={e => setSortBy(e.target.value as SortField)}
+              >
+                {SORT_OPTIONS.map(o => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-brand-text mb-1">Sort order</label>
+              <select
+                className="input-field text-sm py-2"
+                value={sortOrder}
+                onChange={e => setSortOrder(e.target.value as SortOrder)}
+              >
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+              </select>
             </div>
 
             <button
@@ -194,7 +199,7 @@ export default function CustomersPage() {
             </button>
           </div>
 
-          {/* Validation error */}
+          {/* search options validation error */}
           {formError && (
             <p className="mt-3 text-xs text-red-600 flex items-center gap-1.5">
               <svg className="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -205,10 +210,10 @@ export default function CustomersPage() {
           )}
         </div>
 
-        {/* ── Results ── */}
+        {/* customer list result */}
         {hasSearched && (
           <>
-            {/* Result meta */}
+            {/* header */}
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs sm:text-sm text-gray-500">
                 {loading ? 'Loading…' : `${total} result${total !== 1 ? 's' : ''} — page ${page} of ${totalPages || 1}`}
@@ -232,45 +237,46 @@ export default function CustomersPage() {
                 <p className="text-sm text-gray-500">No customers found.</p>
               </div>
             ) : (
-              <>
-                {/* ── Desktop table ── */}
-                <div className="data-table card overflow-hidden mb-4">
+                <div className="card overflow-hidden mb-4 overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-gray-100 bg-gray-50/60">
-                        {['Customer','Company','Credit Status','Salesperson','Total Spend','Purchases','Last Activity'].map(h => (
-                          <th key={h} className="text-left px-4 py-3 font-medium text-gray-500 whitespace-nowrap">{h}</th>
+                        {colList.map(col => (
+                          <th key={col.label} className={`${col.desktopOnly ? 'hidden sm:table-cell ' : ''}text-center px-4 py-3 font-medium text-gray-500 whitespace-nowrap`}>
+                            {col.label}
+                          </th>
                         ))}
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
-                      {customers.map(c => {
-                        const lastAct = c.recentActivity?.[0]
+                      {customers.map(customer => {
+                        const lastAct = customer.recentActivity?.[0]
+                        // return customer rows
                         return (
-                          <tr key={c.id} className="hover:bg-primary/[0.02] transition-colors cursor-pointer">
+                          <tr key={customer.id} className="hover:bg-primary/[0.02] transition-colors">
                             <td className="px-4 py-3.5">
-                              <Link href={`/customers/${c.id}`} className="flex items-center gap-3">
-                                <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary flex-shrink-0">
-                                  {c.name.charAt(0)}
-                                </div>
-                                <div>
-                                  <p className="font-medium text-brand-text hover:text-primary transition-colors">{c.name}</p>
-                                  <p className="text-xs text-gray-400">{c.email}</p>
-                                </div>
+                              <Link href={`/customers/${customer.id}`} className="font-medium text-brand-text hover:text-primary transition-colors whitespace-nowrap">
+                                {customer.name}
                               </Link>
                             </td>
-                            <td className="px-4 py-3.5 text-gray-600">{c.company}</td>
-                            <td className="px-4 py-3.5"><CreditBadge status={c.creditStatus} /></td>
-                            <td className="px-4 py-3.5 text-gray-600">{c.salesperson}</td>
-                            <td className="px-4 py-3.5 font-medium text-brand-text whitespace-nowrap">{formatCurrency(c.totalSpend)}</td>
-                            <td className="px-4 py-3.5 text-gray-600 text-center">{c.numberOfPurchases}</td>
+                            <td className="px-4 py-3.5 text-sm text-gray-600">{customer.company}</td>
+                            <td className="hidden sm:table-cell px-4 py-3.5 text-sm text-gray-600">{customer.salesperson}</td>
+                            <td className="hidden sm:table-cell px-4 py-3.5 text-center">
+                              <span className={`badge inline-block w-16 text-center ${customer.status === 'Active' ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                                {customer.status === 'Active' ? 'Active' : 'Inactive'}
+                              </span>
+                            </td>
+                            <td className="hidden sm:table-cell px-4 py-3.5 text-sm text-gray-600 text-right tabular-nums">{customer.totalSpend}</td>
+                            <td className="hidden sm:table-cell px-4 py-3.5 text-sm text-gray-600 text-right tabular-nums">{customer.numberOfPurchases}</td>
                             <td className="px-4 py-3.5">
                               {lastAct ? (
                                 <div>
                                   <p className="text-xs text-gray-600 line-clamp-1 max-w-[160px]">{lastAct.action}</p>
                                   <p className="text-xs text-gray-400 mt-0.5">{lastAct.displayTime}</p>
                                 </div>
-                              ) : <span className="text-gray-400">—</span>}
+                              ) : (
+                                <span className="text-sm text-gray-400">—</span>
+                              )}
                             </td>
                           </tr>
                         )
@@ -278,86 +284,83 @@ export default function CustomersPage() {
                     </tbody>
                   </table>
                 </div>
-
-                {/* ── Mobile cards ── */}
-                <div className="data-cards card mb-4">
-                  {customers.map(c => {
-                    const lastAct = c.recentActivity?.[0]
-                    return (
-                      <Link
-                        key={c.id}
-                        href={`/customers/${c.id}`}
-                        className="flex items-start gap-3 px-4 py-4 hover:bg-primary/[0.02] transition-colors"
-                      >
-                        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary flex-shrink-0 mt-0.5">
-                          {c.name.charAt(0)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-2">
-                            <p className="font-medium text-brand-text text-sm truncate">{c.name}</p>
-                            <CreditBadge status={c.creditStatus} />
-                          </div>
-                          <p className="text-xs text-gray-500 mt-0.5 truncate">{c.company}</p>
-                          <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
-                            <span>{formatCurrency(c.totalSpend)}</span>
-                            <span className="text-gray-300">·</span>
-                            <span>{c.numberOfPurchases} orders</span>
-                          </div>
-                          {lastAct && (
-                            <p className="text-xs text-gray-400 mt-1 truncate">{lastAct.action} · {lastAct.displayTime}</p>
-                          )}
-                        </div>
-                        <svg className="w-4 h-4 text-gray-300 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                        </svg>
-                      </Link>
-                    )
-                  })}
-                </div>
-              </>
             )}
 
-            {/* ── Pagination ── */}
-            {totalPages > 1 && !loading && (
-              <div className="flex items-center justify-center gap-1 sm:gap-1.5 mb-2">
+            {/* Pagination */}
+            {!loading && totalPages >= 1 && (
+              <div className="flex items-center justify-center gap-1.5 mb-2">
+
+                {/* First */}
+                <button
+                  onClick={() => handlePageChange(1)}
+                  disabled={page <= 1 || totalPages === 1}
+                  className="btn-ghost px-3 py-2 text-sm disabled:opacity-40"
+                  title="First page"
+                >
+                  «
+                </button>
+
+                {/* Prev */}
                 <button
                   onClick={() => handlePageChange(page - 1)}
-                  disabled={page <= 1}
-                  className="btn-ghost px-2.5 sm:px-3 py-1.5 text-xs disabled:opacity-40"
+                  disabled={page <= 1 || totalPages === 1}
+                  className="btn-ghost px-3 py-2 text-sm disabled:opacity-40"
+                  title="Previous page"
                 >
-                  ← Prev
+                  ‹
                 </button>
 
-                {Array.from({ length: totalPages }, (_, i) => i + 1)
-                  .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
-                  .reduce<(number | '...')[]>((acc, p, idx, arr) => {
-                    if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('...')
-                    acc.push(p)
-                    return acc
-                  }, [])
-                  .map((p, i) =>
-                    p === '...' ? (
-                      <span key={`ellipsis-${i}`} className="px-1.5 text-gray-400 text-xs">…</span>
-                    ) : (
-                      <button
-                        key={p}
-                        onClick={() => handlePageChange(p as number)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                          p === page ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'
-                        }`}
-                      >
-                        {p}
-                      </button>
-                    )
-                  )}
+                {/* Page input */}
+                <input
+                  type="number"
+                  min={1}
+                  max={totalPages}
+                  value={pageInput}
+                  onChange={e => setPageInput(e.target.value)}
+                  onBlur={() => {
+                    const n = parseInt(pageInput, 10)
+                    if (!isNaN(n) && n >= 1 && n <= totalPages) {
+                      handlePageChange(n)
+                    } else {
+                      setPageInput(String(page))
+                    }
+                  }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      const n = parseInt(pageInput, 10)
+                      if (!isNaN(n) && n >= 1 && n <= totalPages) {
+                        handlePageChange(n)
+                      } else {
+                        setPageInput(String(page))
+                      }
+                    }
+                  }}
+                  className="input-field text-sm text-center py-2 w-14 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
 
+                {/* of total */}
+                <span className="text-sm text-gray-500">of {totalPages}</span>
+
+                {/* Next */}
                 <button
                   onClick={() => handlePageChange(page + 1)}
-                  disabled={page >= totalPages}
-                  className="btn-ghost px-2.5 sm:px-3 py-1.5 text-xs disabled:opacity-40"
+                  disabled={page >= totalPages || totalPages === 1}
+                  className="btn-ghost px-3 py-2 text-sm disabled:opacity-40"
+                  title="Next page"
                 >
-                  Next →
+                  ›
                 </button>
+
+                {/* Last */}
+                <button
+                  onClick={() => handlePageChange(totalPages)}
+                  disabled={page >= totalPages || totalPages === 1}
+                  className="btn-ghost px-3 py-2 text-sm disabled:opacity-40"
+                  title="Last page"
+                >
+                  »
+                </button>
+
               </div>
             )}
         </>
