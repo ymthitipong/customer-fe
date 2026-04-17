@@ -8,7 +8,6 @@ import type {
   SortOrder
 } from '@/app/interface/customer-app.interface'
 import { getCustomers } from '@/lib/api/customers/get-customers'
-import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { fromResponseToCustomers, transformSortBy, transformSortOrder } from './customers-response-map'
@@ -307,11 +306,13 @@ export default function CustomersPage() {
                         return (
                           <tr key={customer.id} className="hover:bg-primary/[0.05] transition-colors">
                             <td className="px-4 py-3.5">
-                              <Link
+                              <a
                                 href={`/customers/${customer.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="font-medium text-brand-text hover:text-primary transition-colors whitespace-nowrap">
                                 {customer.name}
-                              </Link>
+                              </a>
                             </td>
                             <td className="px-4 py-3.5 text-sm text-gray-600">{customer.company}</td>
                             <td className="hidden sm:table-cell px-4 py-3.5 text-sm text-gray-600">{customer.salesperson}</td>
