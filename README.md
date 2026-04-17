@@ -2,6 +2,8 @@
 
 Customer information frontend application built.
 
+**Optimized for:** Desktop screens
+
 **Requires Backend:** This frontend requires the [customer-be](https://github.com/ymthitipong/customer-be) backend to be running.
 
 Make sure you have the backend running before starting the frontend. The frontend will connect to the backend API (default: `http://localhost:8080`)
@@ -70,4 +72,3 @@ docker-compose up prod
 - Recent activity timeline
 
 **Default behavior:** Any other path (except prefix `/login` or `/customers`) will redirect to `/login`
-
