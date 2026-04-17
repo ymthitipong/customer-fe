@@ -36,6 +36,10 @@ export default function LoginPage() {
     router.push('/customers')
   }
 
+  const handleGoogleLogin = () => {
+    router.push('/customers')
+  }
+
   return (
     <div className="fixed inset-0 bg-brand-bg flex flex-col items-center justify-center px-4 sm:px-6 overflow-hidden">
 
@@ -138,9 +142,10 @@ export default function LoginPage() {
             <div className="flex-1 h-px bg-gray-100" />
           </div>
 
-          {/* login with google */}
+          {/* login with googl - mock to customers page */}
           <button
             type="button"
+            onClick={handleGoogleLogin}
             className="w-full flex items-center justify-center gap-2.5 bg-white border border-gray-200 rounded-lg font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-colors text-xs sm:text-sm py-2 sm:py-2.5"
           >
             <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
