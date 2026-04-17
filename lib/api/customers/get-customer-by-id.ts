@@ -1,20 +1,14 @@
 import { customerInstance } from "@/lib/axios/axios-instance";
 import axios from "axios";
+import { CustomerResponseInterface } from "./customer.interface";
 
-interface LoginResponse {
-  success: boolean;
-}
-
-export const loginByUsernamePassword = async (username: string, password: string): Promise<{
-  statusCode: number;
-  data?: LoginResponse;
+export const getCustomerById = async (id: number): Promise<{
+  statusCode: number,
+  data?: CustomerResponseInterface
 }> => {
-  try {
-    const response = await customerInstance.post<LoginResponse>('/api/login', {
-      username,
-      password,
-    })
 
+  try {
+    const response = await customerInstance.get<CustomerResponseInterface>(`/api/customers/${id}`)
     return {
       statusCode: response.status,
       data: response.data,
