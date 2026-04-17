@@ -305,7 +305,7 @@ export default function CustomersPage() {
                         const lastAct = customer.recentActivity?.[0]
                         // return customer rows
                         return (
-                          <tr key={customer.id} className="hover:bg-primary/[0.02] transition-colors">
+                          <tr key={customer.id} className="hover:bg-primary/[0.05] transition-colors">
                             <td className="px-4 py-3.5">
                               <Link
                                 href={`/customers/${customer.id}`}

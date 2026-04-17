@@ -42,7 +42,7 @@ export default function LoginPage() {
       {/* background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-40 -right-40 w-72 h-72 rounded-full bg-primary/5" />
-        <div className="absolute -bottom-32 -left-32 w-64 h-64 rounded-full bg-secondary/10" />
+        <div className="absolute -bottom-32 -left-32 w-64 h-64 rounded-full bg-brand-text/5" />
       </div>
 
       <div className="relative flex flex-col items-center gap-5 sm:gap-6 w-full">
