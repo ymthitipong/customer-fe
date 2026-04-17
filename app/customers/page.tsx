@@ -17,7 +17,7 @@ const PAGE_LIMIT = 20
 const SORT_OPTIONS: { value: SortField; label: string }[] = [
   { value: 'name',                label: 'Customer Name' },
   { value: 'total_spend',         label: 'Total Spend' },
-  { value: 'number_of_purchases', label: 'Number of Purchases' },
+  { value: 'number_of_purchases', label: 'Purchases' },
   { value: 'status',              label: 'Status' },
   { value: 'last_activity',       label: 'Last Activity' },
 ]
