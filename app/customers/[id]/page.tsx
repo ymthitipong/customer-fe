@@ -29,14 +29,6 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
   const [loading, setLoading]   = useState(true)
   const [error, setError]       = useState('')
 
-  const handleBackClick = () => {
-    if (typeof document !== 'undefined' && document.referrer.includes('/customers')) {
-      router.back()
-    } else {
-      router.push('/customers')
-    }
-  }
-
   useEffect(() => {
     async function load() {
       const id = parseInt(params.id, 10)
@@ -60,16 +52,6 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
         <h1 className="text-xl font-semibold text-brand-text">
           {loading ? 'Loading…' : customer?.name ?? 'Customer Detail'}
         </h1>
-        <button
-          type="button"
-          onClick={handleBackClick}
-          className="btn-ghost px-2.5 py-2 text-sm flex items-center gap-1.5"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-          Back to Customers List
-        </button>
       </div>
 
       {/* ── Loading ── */}
