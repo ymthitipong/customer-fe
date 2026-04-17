@@ -1,5 +1,5 @@
 import { CustomerListResponseInterface, CustomerResponseInterface } from "@/lib/api/customers/customer.interface";
-import { Customer, Customers } from "../interface/customer-app.interface";
+import { Customer, Customers, SortField, SortOrder } from "../interface/customer-app.interface";
 
 export const fromResponseToCustomer = (res: CustomerResponseInterface): Customer => {
   return {
@@ -25,4 +25,19 @@ export const fromResponseToCustomers = (res: CustomerListResponseInterface): Cus
     page: res.page,
     limit: res.limit,
   }
+}
+
+const sortOrder: SortOrder[] = ['asc', 'desc']
+const sortField: SortField[] = ['name', 'total_spend', 'number_of_purchases', 'status', 'last_activity']
+export const transformSortBy = (by: unknown): SortField => {
+  if (by && typeof by === 'string' && sortField.includes(by as SortField)) {
+    return by as SortField
+  }
+  return 'name'
+}
+export const transformSortOrder = (order: unknown): SortOrder => {
+  if (order && typeof order === 'string' && sortOrder.includes(order as SortOrder)) {
+    return order as SortOrder
+  }
+  return 'asc'
 }

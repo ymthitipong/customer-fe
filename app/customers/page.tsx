@@ -9,8 +9,9 @@ import type {
 } from '@/app/interface/customer-app.interface'
 import { getCustomers } from '@/lib/api/customers/get-customers'
 import Link from 'next/link'
-import { useState } from 'react'
-import { fromResponseToCustomers } from './customers-response-map'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { fromResponseToCustomers, transformSortBy, transformSortOrder } from './customers-response-map'
 
 const PAGE_LIMIT = 20
 
@@ -32,7 +33,21 @@ const colList: { label: string; desktopOnly?: boolean; align?: 'right' }[] = [
   { label: 'Last Activity' },
 ]
 
+function buildSearchQuery(params: SearchCustomersParams, page: number): string {
+  const query = new URLSearchParams()
+  if (params.name)        query.set('name',        params.name)
+  if (params.company)     query.set('company',     params.company)
+  if (params.salesperson) query.set('salesperson', params.salesperson)
+  query.set('sortBy',    params.sortBy)
+  query.set('sortOrder', params.sortOrder)
+  query.set('page',      String(page))
+  return query.toString()
+}
+
 export default function CustomersPage() {
+  const router       = useRouter()
+  const searchParams = useSearchParams()
+
   // search form state
   const [form, setForm] = useState<CustomersSearchOptionsParams>({})
   const [sortBy, setSortBy]       = useState<SortField>('name')
@@ -44,33 +59,70 @@ export default function CustomersPage() {
 
   // --- table result state
   const [customers, setCustomers] = useState<Customer[]>([])
-  const [total, setTotal]         = useState(0)
-  const [page, setPage]           = useState(1)
+  const [total, setTotal] = useState(0)
+  const [page, setPage] = useState(1)
   const [pageInput, setPageInput] = useState('1')
-  const [loading, setLoading]     = useState(false)
+  const [loading, setLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
 
   const totalPages = Math.ceil(total / PAGE_LIMIT)
+
+  // restore state from URL query params (e.g. when returning from detail page)
+  useEffect(() => {
+    const name = searchParams.get('name') ?? undefined
+    const company = searchParams.get('company') ?? undefined
+    const salesperson = searchParams.get('salesperson') ?? undefined
+    const sortByQuery = transformSortBy(searchParams.get('sortBy'))
+    const sortOrderQuery = transformSortOrder(searchParams.get('sortOrder'))
+    const pageQ = parseInt(searchParams.get('page') || '1', 10) ?? 1
+
+    if (!name && !company && !salesperson) {
+      setActiveSearchParams(null);
+      setHasSearched(false);
+      router.replace(`/customers`, { scroll: true })
+      return;
+    }
+
+    setForm({ name, company, salesperson })
+    setSortBy(sortByQuery)
+    setSortOrder(sortOrderQuery)
+
+    const params: SearchCustomersParams = {
+      name, company, salesperson,
+      sortBy: sortByQuery, sortOrder: sortOrderQuery,
+      page: pageQ, limit: PAGE_LIMIT,
+    }
+    setActiveSearchParams(params)
+    setHasSearched(true)
+    fetchPage(params)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   async function fetchPage(params: SearchCustomersParams) {
     const { name, company, salesperson, sortBy, sortOrder, limit, page } = params
     setLoading(true)
     try {
-      const { data } = await getCustomers({ 
+      const { data, statusCode } = await getCustomers({
         name,
         company,
         salesperson,
-      }, { 
-        order: { by: sortBy, direction: sortOrder }, 
-        page: page, 
-        limit, 
+      }, {
+        order: { by: sortBy, direction: sortOrder },
+        page: page,
+        limit,
       })
-      
-      const { customers, total } = fromResponseToCustomers(data!)
+
+      if (!data || statusCode >= 300) {
+        setLoading(false)
+        return
+      }
+
+      const { customers, total } = fromResponseToCustomers(data)
       setCustomers(customers)
       setTotal(total)
       setPage(page)
       setPageInput(String(page))
+      router.replace(`/customers?${buildSearchQuery(params, page)}`, { scroll: false })
     } finally {
       setLoading(false)
     }
@@ -255,7 +307,9 @@ export default function CustomersPage() {
                         return (
                           <tr key={customer.id} className="hover:bg-primary/[0.02] transition-colors">
                             <td className="px-4 py-3.5">
-                              <Link href={`/customers/${customer.id}`} className="font-medium text-brand-text hover:text-primary transition-colors whitespace-nowrap">
+                              <Link
+                                href={`/customers/${customer.id}`}
+                                className="font-medium text-brand-text hover:text-primary transition-colors whitespace-nowrap">
                                 {customer.name}
                               </Link>
                             </td>
