@@ -11,24 +11,40 @@ export default function LoginPage() {
   const [password, setPassword] = useState<string>('')
   const [loading, setLoading]   = useState<boolean>(false)
   const [error, setError]       = useState<string>('')
+  const [emailError, setEmailError] = useState<boolean>(false)
+  const [pwError, setPwError]       = useState<boolean>(false)
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError('')
+    setEmailError(false)
+    setPwError(false)
+
     if (!email || !password) {
       setError('Please fill in email and password')
+      setEmailError(!email)
+      setPwError(!password)
+      return
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setError('Invalid email format. Please enter a valid email address.')
+      setEmailError(true)
       return
     }
     setLoading(true)
 
     const result = await loginByUsernamePassword(email, password)
-    if (result.statusCode >= 400) {
-      setError('Invalid email or password')
+    if (result.statusCode >= 500) {
+      setError('Server error. Please try again later.')
       setLoading(false)
       return
     }
-    if (result.statusCode >= 500) {
-      setError('Server error')
+    if (result.statusCode >= 400) {
+      setError('Login failed. Please check your email and password.')
+      setEmailError(true)
+      setPwError(true)
       setLoading(false)
       return
     }
@@ -71,7 +87,7 @@ export default function LoginPage() {
           </h1>
 
           {/* form */}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:gap-4">
+          <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3 sm:gap-4">
             {/* email address */}
             <div>
               <label className="block font-medium text-brand-text text-xs sm:text-sm mb-1">
@@ -79,10 +95,10 @@ export default function LoginPage() {
               </label>
               <input
                 type="email"
-                className="input-field text-xs sm:text-sm"
+                className={`input-field text-xs sm:text-sm ${emailError ? 'input-error' : ''}`}
                 placeholder="example@mail.com"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={e => { setEmail(e.target.value); setEmailError(false) }}
                 autoComplete="email"
               />
             </div>
@@ -99,15 +115,15 @@ export default function LoginPage() {
               </div>
               <input
                 type="password"
-                className="input-field text-xs sm:text-sm"
+                className={`input-field text-xs sm:text-sm ${pwError ? 'input-error' : ''}`}
                 placeholder="••••••••"
                 value={password}
-                onChange={e => setPassword(e.target.value)}
+                onChange={e => { setPassword(e.target.value); setPwError(false) }}
                 autoComplete="current-password"
               />
             </div>
 
-            {/* error while logging in/ press sign in button */}
+            {/* error field */}
             {error && (
               <div className="flex items-center gap-2 text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2 text-xs">
                 <svg className="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
