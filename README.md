@@ -1,6 +1,6 @@
 # Customer FE
 
-Customer information frontend application built.
+Customer information frontend application built (live url: https://customer-fe.vercel.app).
 
 **Optimized for:** Desktop screens
 
@@ -19,13 +19,10 @@ Make sure you have the backend running before starting the frontend. The fronten
 ## Requirements
 
 - Node.js version 20
-- Docker & Docker Compose (if running with Docker)
 
 ---
 
 ## Setup & Run
-
-### Local
 
 #### Setup
 ```bash
@@ -41,18 +38,6 @@ npm run dev
 npm run build
 npm start
 ```
-
-### Docker
-
-#### Run
-```bash
-# Development
-docker-compose up dev
-
-# Production
-docker-compose up prod
-```
-
 ---
 
 ## Pages
